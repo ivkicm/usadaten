@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>US Inflation & Arbeitslosenquote Dashboard</title>
+<style>
+    :root {
+        --bg: #0f172a;
+        --panel: #111827;
+        --panel-2: #1f2937;
+        --text: #f8fafc;
+        --muted: #94a3b8;
+        --accent: #38bdf8;
+        --good: #22c55e;
+        --bad: #ef4444;
+        --neutral: #f59e0b;
+        --cyan-soft: #93c5fd;
+        --shadow: 0 16px 40px rgba(0,0,0,0.35);
+        --radius: 24px;
+    }
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background:
+            radial-gradient(circle at top left, rgba(56,189,248,0.10), transparent 30%),
+            radial-gradient(circle at bottom right, rgba(99,102,241,0.10), transparent 30%),
+            var(--bg);
+        color: var(--text);
+        padding: 24px;
+    }
+    .wrap { max-width: 1250px; margin: 0 auto; }
+    .headline { margin-bottom: 20px; }
+    h1 { margin: 0 0 8px; font-size: 34px; }
+    .sub { color: var(--muted); font-size: 15px; }
+    .panel {
+        background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+        border: 1px solid rgba(255,255,255,0.08);
+        box-shadow: var(--shadow);
+        border-radius: var(--radius);
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+    .panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 22px;
+    }
+    .title { font-size: 30px; font-weight: 700; margin: 0; }
+    .latest {
+        background: rgba(56,189,248,0.12);
+        border: 1px solid rgba(56,189,248,0.28);
+        color: #bae6fd;
+        padding: 10px 14px;
+        border-radius: 999px;
+        font-weight: 700;
+    }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .value-card {
+        background: linear-gradient(180deg, rgba(31,41,55,1), rgba(17,24,39,0.95));
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 20px;
+        padding: 26px;
+        min-height: 215px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+    .month { color: #dbeafe; font-size: 30px; font-weight: 800; margin-bottom: 18px; letter-spacing: 0.3px; }
+    .value-line { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .value { font-size: 58px; font-weight: 900; line-height: 1; }
+    .change, .jobs-change {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-weight: 800;
+        line-height: 1;
+        white-space: nowrap;
+    }
+    .change { font-size: 22px; }
+    .jobs-change { font-size: 18px; }
+    .change.up, .jobs-change.down { background: rgba(239,68,68,0.16); color: #fecaca; border: 1px solid rgba(239,68,68,0.30); }
+    .change.down, .jobs-change.up { background: rgba(34,197,94,0.16); color: #bbf7d0; border: 1px solid rgba(34,197,94,0.30); }
+    .change.neutral, .jobs-change.neutral { background: rgba(245,158,11,0.16); color: #fde68a; border: 1px solid rgba(245,158,11,0.30); }
+    .subvalue { margin-top: 18px; font-size: 28px; font-weight: 700; color: #cbd5e1; }
+    .jobs-line { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 14px; }
+    .jobs-value { font-size: 28px; font-weight: 800; color: var(--cyan-soft); }
+    @media (max-width: 980px) {
+        .cards { grid-template-columns: 1fr; }
+        .month { font-size: 26px; }
+        .value { font-size: 46px; }
+        .change { font-size: 18px; }
+        .subvalue { font-size: 24px; }
+        .jobs-value { font-size: 24px; }
+        .jobs-change { font-size: 16px; }
+    }
+</style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="headline">
+            <h1>USA Dashboard</h1>
+            <div class="sub">Inflation und Arbeitslosenquote • letzte 3 Monate • BLS-Datenstand 2026-04-03 05:24 UTC</div>
+        </div>
+
+        <section class="panel">
+            <div class="panel-head">
+                <h2 class="title">Inflation</h2>
+                <div class="latest">Aktuell: 2.4% (Feb 2026)</div>
+            </div>
+            <div class="cards">
+                <div class="value-card">
+            <div class="month">Dec 2025</div>
+            <div class="value-line">
+                <span class="value">2.7%</span>
+            </div>
+        </div>
+<div class="value-card">
+            <div class="month">Jan 2026</div>
+            <div class="value-line">
+                <span class="value">2.4%</span> <span class="change down">▼ -0.3 PP</span>
+            </div>
+        </div>
+<div class="value-card">
+            <div class="month">Feb 2026</div>
+            <div class="value-line">
+                <span class="value">2.4%</span> <span class="change neutral">■ 0.0 PP</span>
+            </div>
+        </div>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="panel-head">
+                <h2 class="title">Arbeitslosenquote</h2>
+                <div class="latest">
+                    Aktuell: 4.4% · 7.6 Mio. · -92k Jobs (Feb 2026)
+                </div>
+            </div>
+            <div class="cards">
+                <div class="value-card">
+            <div class="month">Dec 2025</div>
+            <div class="value-line">
+                <span class="value">4.4%</span>
+            </div>
+            <div class="subvalue">7.5 Mio. Arbeitslose</div>
+            <div class="jobs-line">
+                <span class="jobs-value">-17k Jobs</span>
+            </div>
+        </div>
+<div class="value-card">
+            <div class="month">Jan 2026</div>
+            <div class="value-line">
+                <span class="value">4.3%</span> <span class="change down">▼ -0.1 PP</span>
+            </div>
+            <div class="subvalue">7.4 Mio. Arbeitslose</div>
+            <div class="jobs-line">
+                <span class="jobs-value">+126k Jobs</span> <span class="jobs-change up">▲ +143k</span>
+            </div>
+        </div>
+<div class="value-card">
+            <div class="month">Feb 2026</div>
+            <div class="value-line">
+                <span class="value">4.4%</span> <span class="change up">▲ +0.1 PP</span>
+            </div>
+            <div class="subvalue">7.6 Mio. Arbeitslose</div>
+            <div class="jobs-line">
+                <span class="jobs-value">-92k Jobs</span> <span class="jobs-change down">▼ -218k</span>
+            </div>
+        </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
