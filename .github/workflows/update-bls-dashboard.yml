@@ -1,0 +1,38 @@
+name: Update BLS Dashboard
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 12 * * 6"
+
+permissions:
+  contents: write
+
+jobs:
+  update-dashboard:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+
+      - name: Python einrichten
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Dashboard bauen, wenn neue Daten da sind
+        env:
+          OUTPUT_HTML: macro-dashboard/index.html
+          STATE_JSON: macro-dashboard/bls_state.json
+          DATA_JSON: macro-dashboard/bls_data.json
+        run: python bls_dashboard_github.py
+
+      - name: Änderungen committen
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add macro-dashboard/index.html macro-dashboard/bls_state.json macro-dashboard/bls_data.json
+          git diff --cached --quiet && echo "Keine Änderungen zum Committen." && exit 0
+          git commit -m "Update BLS dashboard data"
+          git push
