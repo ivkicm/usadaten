@@ -437,10 +437,7 @@ def main():
     ensure_parent_dirs()
     old_state = load_previous_state()
     payload = build_payload()
-
-    if not has_material_change(old_state, payload) and OUTPUT_HTML.exists():
-        print("Keine neuen BLS-Daten. Kein Update nötig.")
-        return 0
+    material_change = has_material_change(old_state, payload)
 
     html = build_html(
         payload["inflation_items"],
@@ -449,25 +446,28 @@ def main():
     )
 
     OUTPUT_HTML.write_text(html, encoding="utf-8")
-    STATE_JSON.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-    DATA_JSON.write_text(
-        json.dumps(
-            {
-                "inflation_items": payload["inflation_items"],
-                "unemployment_items": payload["unemployment_items"],
-            },
-            ensure_ascii=False,
-            indent=2,
-        ),
-        encoding="utf-8",
-    )
+    print(f"HTML gebaut: {OUTPUT_HTML}")
 
-    print(f"Aktualisiert: {OUTPUT_HTML}")
-    print(f"State: {STATE_JSON}")
-    print(f"Data: {DATA_JSON}")
+    if material_change or not STATE_JSON.exists() or not DATA_JSON.exists():
+        STATE_JSON.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+        DATA_JSON.write_text(
+            json.dumps(
+                {
+                    "inflation_items": payload["inflation_items"],
+                    "unemployment_items": payload["unemployment_items"],
+                },
+                ensure_ascii=False,
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
+        print(f"Neue BLS-Daten erkannt: {STATE_JSON}")
+        print(f"Data aktualisiert: {DATA_JSON}")
+    else:
+        print("Keine neuen BLS-Daten. Nur HTML/Template wurde neu gebaut.")
+
     return 0
 
 
 if __name__ == "__main__":
     sys.exit(main())
-
