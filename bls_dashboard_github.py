@@ -258,9 +258,6 @@ def build_html(inflation_items, unemployment_items, published_at_utc):
         padding: 24px;
     }}
     .wrap {{ width: 100%; max-width: none; margin: 0; }}
-    .headline {{ margin-bottom: 20px; }}
-    h1 {{ margin: 0 0 8px; font-size: 34px; }}
-    .sub {{ color: var(--muted); font-size: 15px; }}
     .panel {{
         background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
         border: 1px solid rgba(255,255,255,0.08);
@@ -331,11 +328,6 @@ def build_html(inflation_items, unemployment_items, published_at_utc):
 </head>
 <body>
     <div class="wrap">
-        <div class="headline">
-            <h1>USA Dashboard</h1>
-            <div class="sub">Inflation und Arbeitslosenquote • letzte 3 Monate • BLS-Datenstand {published_at_utc}</div>
-        </div>
-
         <section class="panel">
             <div class="panel-head">
                 <h2 class="title">Inflation</h2>
@@ -478,3 +470,4 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
+
