@@ -249,6 +249,7 @@ def build_html(inflation_items, unemployment_items, published_at_utc):
     * {{ box-sizing: border-box; }}
     body {{
         margin: 0;
+        min-height: 100vh;
         font-family: Arial, Helvetica, sans-serif;
         background:
             radial-gradient(circle at top left, rgba(56,189,248,0.10), transparent 30%),
@@ -257,14 +258,25 @@ def build_html(inflation_items, unemployment_items, published_at_utc):
         color: var(--text);
         padding: 24px;
     }}
-    .wrap {{ width: 100%; max-width: none; margin: 0; }}
+    .wrap {{
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        min-height: calc(100vh - 48px);
+        display: grid;
+        grid-template-rows: 1fr 1fr;
+        gap: 24px;
+    }}
     .panel {{
         background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
         border: 1px solid rgba(255,255,255,0.08);
         box-shadow: var(--shadow);
         border-radius: var(--radius);
         padding: 24px;
-        margin-bottom: 24px;
+        margin-bottom: 0;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
     }}
     .panel-head {{
         display: flex;
@@ -283,13 +295,20 @@ def build_html(inflation_items, unemployment_items, published_at_utc):
         border-radius: 999px;
         font-weight: 700;
     }}
-    .cards {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }}
+    .cards {{
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+        flex: 1;
+        min-height: 0;
+    }}
     .value-card {{
         background: linear-gradient(180deg, rgba(31,41,55,1), rgba(17,24,39,0.95));
         border: 1px solid rgba(255,255,255,0.06);
         border-radius: 20px;
         padding: 26px;
-        min-height: 215px;
+        min-height: 0;
+        height: 100%;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -316,7 +335,14 @@ def build_html(inflation_items, unemployment_items, published_at_utc):
     .jobs-line {{ display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 14px; }}
     .jobs-value {{ font-size: 28px; font-weight: 800; color: var(--cyan-soft); }}
     @media (max-width: 980px) {{
-        .cards {{ grid-template-columns: 1fr; }}
+        body {{ padding: 16px; }}
+        .wrap {{
+            min-height: calc(100vh - 32px);
+            grid-template-rows: auto auto;
+            gap: 16px;
+        }}
+        .panel {{ padding: 18px; }}
+        .cards {{ grid-template-columns: 1fr; flex: none; }}
         .month {{ font-size: 26px; }}
         .value {{ font-size: 46px; }}
         .change {{ font-size: 18px; }}
