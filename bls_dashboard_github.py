@@ -334,6 +334,13 @@ def build_html(inflation_items, unemployment_items, published_at_utc):
     .subvalue {{ margin-top: 18px; font-size: 28px; font-weight: 700; color: #cbd5e1; }}
     .jobs-line {{ display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 14px; }}
     .jobs-value {{ font-size: 28px; font-weight: 800; color: var(--cyan-soft); }}
+    .wrap > .panel:first-of-type .value {{ font-size: 99px; }}
+    .wrap > .panel:first-of-type .change {{ font-size: 37px; }}
+    .wrap > .panel:last-of-type .value {{ font-size: 81px; }}
+    .wrap > .panel:last-of-type .change {{ font-size: 31px; }}
+    .wrap > .panel:last-of-type .subvalue {{ font-size: 39px; }}
+    .wrap > .panel:last-of-type .jobs-value {{ font-size: 39px; }}
+    .wrap > .panel:last-of-type .jobs-change {{ font-size: 25px; }}
     @media (max-width: 980px) {{
         body {{ padding: 16px; }}
         .wrap {{
