@@ -1,12 +1,6 @@
 {
   "inflation_items": [
     {
-      "year": 2025,
-      "month": 12,
-      "label": "Dec 2025",
-      "value": 2.7
-    },
-    {
       "year": 2026,
       "month": 1,
       "label": "Jan 2026",
@@ -17,6 +11,12 @@
       "month": 2,
       "label": "Feb 2026",
       "value": 2.4
+    },
+    {
+      "year": 2026,
+      "month": 3,
+      "label": "Mar 2026",
+      "value": 3.3
     }
   ],
   "unemployment_items": [
