@@ -25,38 +25,65 @@ LAYOFFS_URL = "https://layoffs.fyi"
 
 def scrape_layoffs_stats(cached: dict | None = None) -> dict:
     """
-    Holt Headline-Stats von layoffs.fyi via urllib (kein Playwright nötig,
-    da die h1-Zahlen server-seitig von WordPress gerendert werden).
-    Fällt bei Fehler auf den gecachten Wert zurück.
+    Holt Headline-Stats von layoffs.fyi (server-seitig gerendertes WordPress-HTML).
+    Fällt bei Fehler auf gecachten Wert zurück.
     """
-    default = cached or {"employees": "?", "companies": "?", "year": str(datetime.now().year)}
+    default = cached if (cached and cached.get("employees", "?") != "?") else None
+
+    HEADERS = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/124.0.0.0 Safari/537.36"
+        ),
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Connection": "keep-alive",
+    }
+
     try:
-        req = urllib.request.Request(
-            LAYOFFS_URL,
-            headers={"User-Agent": "Mozilla/5.0 (compatible; dashboard-bot/1.0)"},
-        )
-        with urllib.request.urlopen(req, timeout=15) as r:
-            html = r.read().decode("utf-8", errors="replace")
+        req = urllib.request.Request(LAYOFFS_URL, headers=HEADERS)
+        with urllib.request.urlopen(req, timeout=20) as r:
+            raw = r.read()
+            # gzip-Dekomprimierung falls nötig
+            try:
+                import gzip
+                html = gzip.decompress(raw).decode("utf-8", errors="replace")
+            except Exception:
+                html = raw.decode("utf-8", errors="replace")
 
-        # Suche nach "73,212 tech employees laid off ∙ 95 tech companies"
-        m_emp  = re.search(r"([\d,]+)\s+tech employees laid off", html)
-        m_comp = re.search(r"([\d,]+)\s+tech companies\s+w/", html)
-        m_year = re.search(r"In (\d{4})", html)
+        print(f"[layoffs.fyi] HTTP OK – {len(html)} Zeichen geladen")
 
-        result = {
-            "employees": m_emp.group(1)  if m_emp  else default["employees"],
-            "companies": m_comp.group(1) if m_comp else default["companies"],
-            "year":      m_year.group(1) if m_year else default["year"],
-        }
-        if result["employees"] != "?":
-            print(f"[layoffs.fyi] {result['employees']} Mitarbeiter · {result['companies']} Unternehmen ({result['year']})")
+        # Debug: ersten Treffer von "tech employees" ausgeben
+        snippet_match = re.search(r".{0,30}tech employees.{0,30}", html)
+        if snippet_match:
+            print(f"[layoffs.fyi] Snippet: {snippet_match.group()!r}")
         else:
-            print("[layoffs.fyi] Keine Stats gefunden – verwende Cache")
-        return result
+            print("[layoffs.fyi] KEIN 'tech employees' im HTML gefunden")
+
+        # Verschiedene Regex-Varianten probieren
+        m_emp  = (re.search(r"([\d,]+)\s+tech employees laid off", html)
+               or re.search(r"([\d,]+)\s+tech employees", html))
+        m_comp = (re.search(r"([\d,]+)\s+tech companies\s+w/", html)
+               or re.search(r"([\d,]+)\s+tech companies", html))
+        m_year = re.search(r"In (202\d)", html)
+
+        if m_emp and m_comp:
+            result = {
+                "employees": m_emp.group(1),
+                "companies": m_comp.group(1),
+                "year":      m_year.group(1) if m_year else str(datetime.now().year),
+            }
+            print(f"[layoffs.fyi] ✓ {result['employees']} · {result['companies']} Unternehmen ({result['year']})")
+            return result
+
+        print("[layoffs.fyi] Regex kein Treffer – verwende Cache")
+        return default if default else {"employees": "?", "companies": "?", "year": str(datetime.now().year)}
 
     except Exception as e:
-        print(f"[layoffs.fyi] Fehler: {e} – verwende Cache")
-        return default
+        print(f"[layoffs.fyi] Fehler: {e}")
+        return default if default else {"employees": "?", "companies": "?", "year": str(datetime.now().year)}
 
 
 def post_bls(series_ids, start_year, end_year):
