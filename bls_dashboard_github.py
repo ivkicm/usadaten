@@ -62,12 +62,12 @@ def scrape_layoffs_stats(cached: dict | None = None) -> dict:
         else:
             print("[layoffs.fyi] KEIN 'tech employees' im HTML gefunden")
 
-        # Verschiedene Regex-Varianten probieren
-        m_emp  = (re.search(r"([\d,]+)\s+tech employees laid off", html)
-               or re.search(r"([\d,]+)\s+tech employees", html))
-        m_comp = (re.search(r"([\d,]+)\s+tech companies\s+w/", html)
-               or re.search(r"([\d,]+)\s+tech companies", html))
-        m_year = re.search(r"In (202\d)", html)
+        # Zahlen stecken in <span class="big-number">73,212</span> tech employees
+        m_emp  = (re.search(r'big-number">([\d,]+)</span>\s*tech employees', html)
+               or re.search(r'([\d,]+)</span>\s*tech employees', html))
+        m_comp = (re.search(r'big-number">([\d,]+)</span>\s*tech companies', html)
+               or re.search(r'([\d,]+)</span>\s*tech companies', html))
+        m_year = re.search(r'In (202\d)', html)
 
         if m_emp and m_comp:
             result = {
