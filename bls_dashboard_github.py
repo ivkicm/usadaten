@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import sys
 import urllib.request
 from datetime import datetime, timezone
@@ -17,6 +18,45 @@ NFP_LEVEL_SERIES = "CES0000000001"  # Total Nonfarm Payrolls Level in Tausend
 OUTPUT_HTML = Path(os.getenv("OUTPUT_HTML", "macro-dashboard/index.html"))
 STATE_JSON = Path(os.getenv("STATE_JSON", "macro-dashboard/bls_state.json"))
 DATA_JSON = Path(os.getenv("DATA_JSON", "macro-dashboard/bls_data.json"))
+
+
+LAYOFFS_URL = "https://layoffs.fyi"
+
+
+def scrape_layoffs_stats(cached: dict | None = None) -> dict:
+    """
+    Holt Headline-Stats von layoffs.fyi via urllib (kein Playwright nötig,
+    da die h1-Zahlen server-seitig von WordPress gerendert werden).
+    Fällt bei Fehler auf den gecachten Wert zurück.
+    """
+    default = cached or {"employees": "?", "companies": "?", "year": str(datetime.now().year)}
+    try:
+        req = urllib.request.Request(
+            LAYOFFS_URL,
+            headers={"User-Agent": "Mozilla/5.0 (compatible; dashboard-bot/1.0)"},
+        )
+        with urllib.request.urlopen(req, timeout=15) as r:
+            html = r.read().decode("utf-8", errors="replace")
+
+        # Suche nach "73,212 tech employees laid off ∙ 95 tech companies"
+        m_emp  = re.search(r"([\d,]+)\s+tech employees laid off", html)
+        m_comp = re.search(r"([\d,]+)\s+tech companies\s+w/", html)
+        m_year = re.search(r"In (\d{4})", html)
+
+        result = {
+            "employees": m_emp.group(1)  if m_emp  else default["employees"],
+            "companies": m_comp.group(1) if m_comp else default["companies"],
+            "year":      m_year.group(1) if m_year else default["year"],
+        }
+        if result["employees"] != "?":
+            print(f"[layoffs.fyi] {result['employees']} Mitarbeiter · {result['companies']} Unternehmen ({result['year']})")
+        else:
+            print("[layoffs.fyi] Keine Stats gefunden – verwende Cache")
+        return result
+
+    except Exception as e:
+        print(f"[layoffs.fyi] Fehler: {e} – verwende Cache")
+        return default
 
 
 def post_bls(series_ids, start_year, end_year):
@@ -219,11 +259,31 @@ def build_unemployment_cards(items):
     return "\n".join(cards_html)
 
 
-def build_html(inflation_items, unemployment_items, published_at_utc):
+def build_html(inflation_items, unemployment_items, published_at_utc, layoffs=None):
     inflation_cards = build_inflation_cards(inflation_items)
     unemployment_cards = build_unemployment_cards(unemployment_items)
     inflation_latest = inflation_items[-1]
     unemployment_latest = unemployment_items[-1]
+
+    # Layoffs-Footer
+    if layoffs and layoffs.get("employees", "?") != "?":
+        layoffs_bar = f"""
+        <div class="layoffs-bar">
+            <span class="layoffs-icon">📉</span>
+            <span class="layoffs-label">Tech Layoffs {layoffs['year']}</span>
+            <span class="layoffs-divider">·</span>
+            <div class="layoffs-block">
+                <span class="layoffs-val">{layoffs['employees']}</span>
+                <span class="layoffs-sub">Mitarbeiter entlassen</span>
+            </div>
+            <span class="layoffs-divider">·</span>
+            <div class="layoffs-block">
+                <span class="layoffs-val">{layoffs['companies']}</span>
+                <span class="layoffs-sub">Unternehmen</span>
+            </div>
+        </div>"""
+    else:
+        layoffs_bar = ""
 
     return f"""<!DOCTYPE html>
 <html lang="de">
@@ -264,9 +324,26 @@ def build_html(inflation_items, unemployment_items, published_at_utc):
         margin: 0;
         min-height: calc(100vh - 48px);
         display: grid;
-        grid-template-rows: 1fr 1fr;
-        gap: 24px;
+        grid-template-rows: 1fr 1fr 88px;
+        gap: 20px;
     }}
+    .layoffs-bar {{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 32px;
+        background: linear-gradient(180deg, rgba(239,68,68,0.07), rgba(239,68,68,0.03));
+        border: 1px solid rgba(239,68,68,0.18);
+        border-radius: 20px;
+        padding: 0 40px;
+        overflow: hidden;
+    }}
+    .layoffs-icon {{ font-size: 48px; line-height: 1; flex-shrink: 0; }}
+    .layoffs-label {{ font-size: 26px; font-weight: 700; color: #64748b; letter-spacing: 0.04em; text-transform: uppercase; flex-shrink: 0; }}
+    .layoffs-divider {{ color: #1e293b; font-size: 42px; flex-shrink: 0; }}
+    .layoffs-block {{ display: flex; align-items: baseline; gap: 14px; flex-shrink: 0; }}
+    .layoffs-val {{ font-size: 72px; font-weight: 900; color: #f87171; line-height: 1; }}
+    .layoffs-sub {{ font-size: 22px; color: #475569; font-weight: 600; }}
     .panel {{
         background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
         border: 1px solid rgba(255,255,255,0.08);
@@ -382,6 +459,7 @@ def build_html(inflation_items, unemployment_items, published_at_utc):
                 {unemployment_cards}
             </div>
         </section>
+        {layoffs_bar}
     </div>
 </body>
 </html>"""
@@ -456,8 +534,6 @@ def build_payload():
         "unemployment_items": unemployment_items,
         "latest_fingerprint": latest_fingerprint,
     }
-
-
 def has_material_change(old_state, new_payload):
     if not old_state:
         return True
@@ -469,13 +545,21 @@ def has_material_change(old_state, new_payload):
 def main():
     ensure_parent_dirs()
     old_state = load_previous_state()
+
+    # Layoffs-Stats aus Cache laden (als Fallback)
+    cached_layoffs = old_state.get("layoffs") if old_state else None
+    layoffs = scrape_layoffs_stats(cached=cached_layoffs)
+
     payload = build_payload()
+    payload["layoffs"] = layoffs
+
     material_change = has_material_change(old_state, payload)
 
     html = build_html(
         payload["inflation_items"],
         payload["unemployment_items"],
         payload["published_at_utc"],
+        layoffs=layoffs,
     )
 
     OUTPUT_HTML.write_text(html, encoding="utf-8")
