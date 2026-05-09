@@ -1,5 +1,5 @@
 {
-  "published_at_utc": "2026-04-11 12:57 UTC",
+  "published_at_utc": "2026-05-09 13:17 UTC",
   "inflation_items": [
     {
       "year": 2026,
@@ -23,19 +23,11 @@
   "unemployment_items": [
     {
       "year": 2026,
-      "month": 1,
-      "label": "Jan 2026",
-      "value": 4.3,
-      "unemployed_millions": 7.4,
-      "jobs_k": 160
-    },
-    {
-      "year": 2026,
       "month": 2,
       "label": "Feb 2026",
       "value": 4.4,
       "unemployed_millions": 7.6,
-      "jobs_k": -133
+      "jobs_k": -156
     },
     {
       "year": 2026,
@@ -43,7 +35,15 @@
       "label": "Mar 2026",
       "value": 4.3,
       "unemployed_millions": 7.2,
-      "jobs_k": 178
+      "jobs_k": 185
+    },
+    {
+      "year": 2026,
+      "month": 4,
+      "label": "Apr 2026",
+      "value": 4.3,
+      "unemployed_millions": 7.4,
+      "jobs_k": 115
     }
   ],
   "latest_fingerprint": {
@@ -55,11 +55,16 @@
     },
     "unemployment_latest": {
       "year": 2026,
-      "month": 3,
-      "label": "Mar 2026",
+      "month": 4,
+      "label": "Apr 2026",
       "value": 4.3,
-      "unemployed_millions": 7.2,
-      "jobs_k": 178
+      "unemployed_millions": 7.4,
+      "jobs_k": 115
     }
+  },
+  "layoffs": {
+    "employees": "101,550",
+    "companies": "120",
+    "year": "2026"
   }
 }
