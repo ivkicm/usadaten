@@ -22,19 +22,11 @@
   "unemployment_items": [
     {
       "year": 2026,
-      "month": 2,
-      "label": "Feb 2026",
-      "value": 4.4,
-      "unemployed_millions": 7.6,
-      "jobs_k": -156
-    },
-    {
-      "year": 2026,
       "month": 3,
       "label": "Mar 2026",
       "value": 4.3,
       "unemployed_millions": 7.2,
-      "jobs_k": 185
+      "jobs_k": 214
     },
     {
       "year": 2026,
@@ -42,7 +34,15 @@
       "label": "Apr 2026",
       "value": 4.3,
       "unemployed_millions": 7.4,
-      "jobs_k": 115
+      "jobs_k": 179
+    },
+    {
+      "year": 2026,
+      "month": 5,
+      "label": "May 2026",
+      "value": 4.3,
+      "unemployed_millions": 7.3,
+      "jobs_k": 172
     }
   ]
 }
