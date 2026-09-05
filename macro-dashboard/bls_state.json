@@ -1,5 +1,5 @@
 {
-  "published_at_utc": "2026-08-15 12:34 UTC",
+  "published_at_utc": "2026-09-05 14:39 UTC",
   "inflation_items": [
     {
       "year": 2026,
@@ -23,19 +23,11 @@
   "unemployment_items": [
     {
       "year": 2026,
-      "month": 5,
-      "label": "May 2026",
-      "value": 4.3,
-      "unemployed_millions": 7.3,
-      "jobs_k": 63
-    },
-    {
-      "year": 2026,
       "month": 6,
       "label": "Jun 2026",
       "value": 4.2,
       "unemployed_millions": 7.1,
-      "jobs_k": 20
+      "jobs_k": 31
     },
     {
       "year": 2026,
@@ -43,7 +35,15 @@
       "label": "Jul 2026",
       "value": 4.1,
       "unemployed_millions": 6.9,
-      "jobs_k": -23
+      "jobs_k": 21
+    },
+    {
+      "year": 2026,
+      "month": 8,
+      "label": "Aug 2026",
+      "value": 4.1,
+      "unemployed_millions": 7.0,
+      "jobs_k": 162
     }
   ],
   "latest_fingerprint": {
@@ -55,11 +55,11 @@
     },
     "unemployment_latest": {
       "year": 2026,
-      "month": 7,
-      "label": "Jul 2026",
+      "month": 8,
+      "label": "Aug 2026",
       "value": 4.1,
-      "unemployed_millions": 6.9,
-      "jobs_k": -23
+      "unemployed_millions": 7.0,
+      "jobs_k": 162
     }
   },
   "layoffs": {
